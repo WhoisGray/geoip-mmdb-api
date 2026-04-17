@@ -1,0 +1,24 @@
+{
+  "name": "mmdb-server-1.2",
+  "version": "1.0.0",
+  "description": "Fast Node.js API server for IP geolocation and ASN lookup using MMDB files.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "mmdb",
+    "geoip",
+    "asn",
+    "express",
+    "nodejs"
+  ],
+  "author": "WhoisGray",
+  "license": "AGPL-3.0-or-later",
+  "type": "commonjs",
+  "dependencies": {
+    "express": "^5.2.1",
+    "maxmind": "^5.0.6"
+  }
+}
