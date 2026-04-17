@@ -1,0 +1,56 @@
+name: Release (High Compression)
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare archive names
+        id: vars
+        run: |
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          VERSION="${GITHUB_REF_NAME:-manual}"
+          echo "repo_name=${REPO_NAME}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tar_name=${REPO_NAME}-${VERSION}.tar.xz" >> "$GITHUB_OUTPUT"
+          echo "zip_name=${REPO_NAME}-${VERSION}.zip" >> "$GITHUB_OUTPUT"
+
+      - name: Create maximum compressed TAR.XZ
+        run: |
+          export XZ_OPT=-9e
+          tar \
+            --exclude-vcs \
+            --exclude='./node_modules' \
+            --exclude='./.pnpm-store' \
+            --exclude='./.env' \
+            --exclude='./.env.*' \
+            -cJf "${{ steps.vars.outputs.tar_name }}" .
+
+      - name: Create maximum compressed ZIP
+        run: |
+          zip -r -9 "${{ steps.vars.outputs.zip_name }}" . \
+            -x ".git/*" \
+               "node_modules/*" \
+               ".pnpm-store/*" \
+               ".env" \
+               ".env.*"
+
+      - name: Create GitHub Release and upload archives
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.vars.outputs.tar_name }}
+            ${{ steps.vars.outputs.zip_name }}
+          generate_release_notes: true
