@@ -29,23 +29,11 @@ jobs:
 
       - name: Create maximum compressed TAR.XZ
         run: |
-          export XZ_OPT=-9e
-          tar \
-            --exclude-vcs \
-            --exclude='./node_modules' \
-            --exclude='./.pnpm-store' \
-            --exclude='./.env' \
-            --exclude='./.env.*' \
-            -cJf "${{ steps.vars.outputs.tar_name }}" .
+          git archive --format=tar HEAD | xz -9e -T0 > "${{ steps.vars.outputs.tar_name }}"
 
       - name: Create maximum compressed ZIP
         run: |
-          zip -r -9 "${{ steps.vars.outputs.zip_name }}" . \
-            -x ".git/*" \
-               "node_modules/*" \
-               ".pnpm-store/*" \
-               ".env" \
-               ".env.*"
+          git archive --format=zip -9 -o "${{ steps.vars.outputs.zip_name }}" HEAD
 
       - name: Create GitHub Release and upload archives
         uses: softprops/action-gh-release@v2
